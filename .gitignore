@@ -13,6 +13,7 @@ wheels/
 .env.*
 .log
 bot.log
+logs/
 
 #files
 src/database/temp_copy.db
