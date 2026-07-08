@@ -19,3 +19,4 @@ logs/
 src/database/temp_copy.db
 logs/bot.log
 *.db
+*.session

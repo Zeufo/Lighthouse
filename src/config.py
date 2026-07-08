@@ -22,6 +22,7 @@ try:
 
     API_ID = os.getenv("API_ID")
     API_HASH = os.getenv("API_HASH")
+    TEST_LINK = os.getenv("TEST_LINK")
 
 except Exception as e:
     logger.critical("cant load dotenv info", e)
