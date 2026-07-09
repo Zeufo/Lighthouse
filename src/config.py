@@ -9,6 +9,57 @@ SRC_DIR = next(p for p in CURRENT_FILE_PATH.parents if p.name == "src")
 DOTENV_PATH = SRC_DIR.parent / ".env"
 
 
+CHANNELS = [
+    # RUS
+    "@bazabaza",
+    "@breakingmash",
+    "@rbc_news",
+    "@kommersant",
+    "@rian_ru",
+    "@ostorozhno_novosti",
+    # EU
+    "@bbcrussian",
+    "@dwglavnoe",
+    "@thebell_io",
+    "@rtvi_news",
+    "@euronews_ru",
+    # ECO
+    "@prostoecon",
+    "@banksta",
+    "@cb_economics",
+    "@marketoverview",
+    "@fatcat18",
+    # IT & TECH
+    "@koddurova",
+    "@exploitex",
+    "@addmeto",
+    "@denis_sexy_it",
+    "@tproger",
+    "@dataleak",
+    # CULT
+    "@techinsiderru",
+    "@postnauka",
+    "@kinopoisk",
+    "@art_of_it",
+]
+
+
+CHANNELS_BY_CATEGORY = {
+    "RUS": [
+        "@bazabaza",
+        "@breakingmash",
+        "@rbc_news",
+        "@kommersant",
+        "@rian_ru",
+        "@ostorozhno_novosti",
+    ],
+    "EU": ["@bbcrussian", "@dwglavnoe", "@thebell_io", "@rtvi_news", "@euronews_ru"],
+    "ECO": ["@prostoecon", "@banksta", "@cb_economics", "@marketoverview", "@fatcat18"],
+    "IT_TECH": ["@koddurova", "@exploitex", "@addmeto", "@denis_sexy_it", "@tproger", "@dataleak"],
+    "CULT": ["@techinsiderru", "@postnauka", "@kinopoisk", "@art_of_it"],
+}
+
+
 try:
     load_dotenv(DOTENV_PATH)
 
