@@ -4,8 +4,10 @@ import typing
 from loguru import logger
 from sqlalchemy import text
 from telethon import TelegramClient
+from telethon.errors import ChannelInvalidError
+from telethon.tl.types import channels
 
-from database import AsyncSessionLocal, Base, engine
+from .models import AsyncSessionLocal, Base, engine
 
 
 class DatabaseInit(abc.ABC):
@@ -22,6 +24,7 @@ class PostgresInit(DatabaseInit):
         try:
             logger.info("Creating the table...")
             async with engine.begin() as conn:
+                logger.debug("Connection confirmed")
                 await conn.run_sync(Base.metadata.create_all)
                 await conn.commit()
                 await conn.close()
@@ -38,14 +41,52 @@ class PostgresInit(DatabaseInit):
             async with AsyncSessionLocal() as session:
                 result = await session.execute(text("SELECT EXISTS (SELECT 1 FROM channels);"))
                 if result.scalar():
-                    return True
+                    return False
 
-            return False
+            return True
 
         except Exception as e:
             logger.error("Error in Checking tables...", e)
             raise RuntimeError
 
     @staticmethod
-    async def fill_channels_table(tg_session: TelegramClient) -> None:
-        pass
+    async def fill_channels_table() -> None:
+        async with AsyncSessionLocal() as session:
+            query = text("""INSERT INTO Channels (
+                channel_id, 
+                channel_title, 
+                subscribers, 
+                last_parsed_at, 
+                last_updated_at) VALUES (
+
+                ) """)
+
+            data = []  # Under constract
+            await session.execute(query, params=data)
+
+    @staticmethod
+    async def fill_users_table(tg_session: TelegramClient) -> None:
+        async with AsyncSessionLocal() as session:
+            query = text("""INSERT INTO Users (
+                user_id, 
+                created_at) VALUES (
+
+                ) """)
+            data = []  # Under constract
+            await session.execute(query, params=data)
+
+    @staticmethod
+    async def fill_news_table(tg_session: TelegramClient) -> None:
+        async with AsyncSessionLocal() as session:
+            query = text("""INSERT INTO News (
+                channel_id, 
+                channel_title, 
+                text, 
+                views, 
+                published_at) VALUES (
+
+                ) """)
+            data = []  # Under constract
+            await session.execute(query, params=data)
+
+            await session.commit()

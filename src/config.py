@@ -65,16 +65,32 @@ try:
 
     DB_HOST = os.getenv("DB_HOST")
     DB_PORT = os.getenv("DB_PORT")
-    DB_NAME = os.getenv("DB_PASS")
+    DB_NAME = os.getenv("DB_NAME")
     DB_USER = os.getenv("DB_USER")
     DB_PASS = os.getenv("DB_PASSWORD")
 
     DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+    logger.debug(f"DB_URL: {repr(DB_URL)}")
 
     API_ID = os.getenv("API_ID")
     API_HASH = os.getenv("API_HASH")
     TEST_LINK = os.getenv("TEST_LINK")
 
+    required_vars = {
+        "DB_HOST": DB_HOST,
+        "DB_PORT": DB_PORT,
+        "DB_NAME": DB_NAME,
+        "DB_USER": DB_USER,
+        "DB_PASS": DB_PASS,
+        "API_ID": API_ID,
+        "API_HASH": API_HASH,
+        "TEST_LINK": TEST_LINK,
+    }
+
+    for var_name, var_value in required_vars.items():
+        if var_value is None:
+            logger.critical(f"{var_name} is not set")
+            raise RuntimeError
 except Exception as e:
     logger.critical("cant load dotenv info", e)
     raise RuntimeError("cant load dotenv info")
