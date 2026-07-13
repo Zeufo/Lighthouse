@@ -69,6 +69,8 @@ try:
     DB_USER = os.getenv("DB_USER")
     DB_PASS = os.getenv("DB_PASSWORD")
 
+    BOT_TOKEN = os.getenv("BOT_TOKEN")
+
     DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
     logger.debug(f"DB_URL: {repr(DB_URL)}")
 
@@ -85,6 +87,7 @@ try:
         "API_ID": API_ID,
         "API_HASH": API_HASH,
         "TEST_LINK": TEST_LINK,
+        "BOT_TOKEN": BOT_TOKEN,
     }
 
     for var_name, var_value in required_vars.items():

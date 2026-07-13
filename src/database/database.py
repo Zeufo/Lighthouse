@@ -50,19 +50,26 @@ class PostgresInit(DatabaseInit):
             raise RuntimeError
 
     @staticmethod
-    async def fill_channels_table() -> None:
+    async def fill_channels_table(to_insert: list) -> None:
         async with AsyncSessionLocal() as session:
-            query = text("""INSERT INTO Channels (
+            query = text("""INSERT INTO channels (
                 channel_id, 
                 channel_title, 
+                channel_status,
                 subscribers, 
                 last_parsed_at, 
                 last_updated_at) VALUES (
 
-                ) """)
+                :channel_id, 
+                :channel_title, 
+                :channel_status, 
+                :subscribers, 
+                :last_parsed_at, 
+                :last_updated_at
+                )""")
 
-            data = []  # Under constract
-            await session.execute(query, params=data)
+            await session.execute(query, params=to_insert)
+            await session.commit()
 
     @staticmethod
     async def fill_users_table(tg_session: TelegramClient) -> None:

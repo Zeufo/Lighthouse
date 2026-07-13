@@ -1,2 +1,2 @@
 from .database import PostgresInit
-from .models import AsyncSessionLocal, Base, engine
+from .models import AsyncSessionLocal, Base, close_db, engine

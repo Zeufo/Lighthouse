@@ -13,6 +13,10 @@ class Base(DeclarativeBase):
     pass
 
 
+async def close_db() -> None:
+    await engine.dispose()
+
+
 # TODO: how should we keep user preferences
 class Users(Base):
     __tablename__ = "users"
@@ -39,9 +43,10 @@ class Channels(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     channel_title: Mapped[str] = mapped_column(nullable=False)
+    channel_status: Mapped[bool] = mapped_column(nullable=False)
     subscribers: Mapped[int] = mapped_column(nullable=False)
-    last_parsed_at: Mapped[str] = mapped_column(nullable=False)
-    last_updated_at: Mapped[str] = mapped_column(nullable=False)
+    last_parsed_at: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    last_updated_at: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
 
 class Digest(Base):

@@ -1,12 +1,13 @@
 import abc
 import asyncio
+import time
 import typing
 
 import telethon
 from loguru import logger
-from telethon import TelegramClient, events
+from telethon import TelegramClient
 
-from config import API_HASH, API_ID, CHANNELS, TEST_LINK
+from config import API_HASH, API_ID, CHANNELS
 
 
 class Parser(abc.ABC):
@@ -17,41 +18,61 @@ class Parser(abc.ABC):
 
 
 class TelethonParser:
+    # actually there is no need in this func while creating tables when we have info parser but maybe we will use it
+    # and reconstruct like a ping func
     @staticmethod
-    async def parse_channels_info() -> typing.Any:
-        try:
-            logger.debug("into parse_channels_info")
-            async with TelegramClient("news_parser_test", API_ID, API_HASH) as client:  # type:ignore
-                logger.debug("Client ready")
-                for channel in CHANNELS:
-                    try:
-                        logger.debug(f"Channel: {channel}")
-                        obj = await client.get_entity(channel)
-                        await asyncio.sleep(1)
-                    except Exception as e:
-                        logger.error(f"Error in parsing {channel}...")
-
-            logger.debug("out of parse_channels_info")
-        except Exception as e:
-            logger.error("Error in parse_channels_info", e)
-
-
-async def attempt() -> None:
-    async with TelegramClient("news_parser", API_ID, API_HASH) as client:  # type:ignore
-        logger.info("Client ready")
-        bad_channels = 0
-        good_channels = 0
-
+    async def parse_channels_status(client: TelegramClient) -> typing.Any:
+        bad_channels = {}
+        logger.debug("into parse_channels_status")
+        logger.debug("Client ready")
         for channel in CHANNELS:
             try:
-                obj = await client.get_entity(channel)
-                logger.debug(f"{channel} is OK")
-                good_channels += 1
+                logger.debug(f"Channel: {channel}...")
+                channel_id = await client.get_peer_id(channel)
 
             except Exception as e:
-                bad_channels += 1
-            finally:
-                await asyncio.sleep(1)
+                logger.warning(f"Error in getting status {channel}...")
+                bad_channels[channel] = channel
 
-    logger.debug(f"Bad channels: {bad_channels}")
-    logger.debug(f"Good channels: {good_channels}")
+            await asyncio.sleep(1)
+
+        logger.debug("out of parse_channels_status")
+        return bad_channels
+
+    @staticmethod
+    async def parse_channels_info(client: TelegramClient) -> list:
+        info = []
+        for channel in CHANNELS:
+            try:
+                channel_id = await client.get_peer_id(channel)
+
+                await asyncio.sleep(1)
+                subscribers = await client.get_participants(channel_id, limit=0)
+                subscribers_count = subscribers.total
+                logger.debug(f"info {channel}:{subscribers_count}")
+
+                to_insert = {
+                    "channel_id": channel_id,
+                    "channel_title": channel,
+                    "channel_status": True,
+                    "subscribers": subscribers_count,
+                    "last_parsed_at": int(time.time()),
+                    "last_updated_at": int(time.time()),
+                }
+                info.append(to_insert)
+
+            except Exception as e:
+                logger.exception(f"Error in parsing {channel}...")
+                to_insert = {
+                    "channel_id": 0,
+                    "channel_title": channel,
+                    "channel_status": False,
+                    "subscribers": 0,
+                    "last_parsed_at": int(time.time()),
+                    "last_updated_at": int(time.time()),
+                }
+                info.append(to_insert)
+
+            await asyncio.sleep(1)
+
+        return info
