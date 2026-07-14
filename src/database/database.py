@@ -66,7 +66,7 @@ class PostgresInit(DatabaseInit):
                 :subscribers, 
                 :last_parsed_at, 
                 :last_updated_at
-                )""")
+                ) ON CONFLICT DO NOTHING;""")
 
             await session.execute(query, params=to_insert)
             await session.commit()

@@ -25,8 +25,8 @@ async def say_hello(message: Message) -> None:
 @router.message(Command("about", ignore_case=True))
 async def info(message: Message) -> None:
     await message.answer(
-        """Бот сделан с целью получения доступной сводки по новостям за прошедший день.
-ежедневно в 20:00 часов по МСК.
+        """Разрботчик ...
+Ссылка на GitHub: ...
         """
     )
 

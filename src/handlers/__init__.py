@@ -1,10 +1,11 @@
 from aiogram import Router
 
+from .commmon import router as common_router
+from .registration import router as register_router
 from .start_up import router as start_up_router
 
 
 def get_main_router():
     main_router = Router()
-    main_router.include_routers(start_up_router)
-
+    main_router.include_routers(common_router, start_up_router, register_router)
     return main_router

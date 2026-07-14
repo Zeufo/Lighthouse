@@ -22,8 +22,8 @@ class Users(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    created_at: Mapped[str] = mapped_column(nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
+    created_at: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
 
 class News(Base):
@@ -42,7 +42,7 @@ class Channels(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    channel_title: Mapped[str] = mapped_column(nullable=False)
+    channel_title: Mapped[str] = mapped_column(nullable=False, unique=True)
     channel_status: Mapped[bool] = mapped_column(nullable=False)
     subscribers: Mapped[int] = mapped_column(nullable=False)
     last_parsed_at: Mapped[int] = mapped_column(BigInteger, nullable=False)
