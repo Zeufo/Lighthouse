@@ -2,12 +2,14 @@ import abc
 import asyncio
 import time
 import typing
+from datetime import datetime, timezone
 
 import telethon
 from loguru import logger
 from telethon import TelegramClient
 
-from config import API_HASH, API_ID, CHANNELS
+from config import API_HASH, API_ID, CHANNELS, queue
+from utils import TelethonCleaner
 
 
 class Parser(abc.ABC):
@@ -76,3 +78,31 @@ class TelethonParser:
             await asyncio.sleep(1)
 
         return info
+
+    @staticmethod
+    async def parse_today_news(client: TelegramClient) -> typing.Any:  # add session type
+        parsed = 0  # just for test
+
+        today = datetime.now(timezone.utc).date()
+        for channel in CHANNELS:
+            text = ""
+            try:
+                parsed += 1
+                logger.debug(f"parsing {channel}...")
+
+                async for message in client.iter_messages(channel):
+                    logger.debug("recived message!")
+                    await asyncio.sleep(1)
+
+                    text += "\n" + message.text
+                    if message.date.date() != today:
+                        break
+
+            except Exception as e:
+                logger.exception(f"Error in parsing {channel}...")
+
+            if len(text) > 100:
+                await queue.put((TelethonCleaner.clean, [text], {}))
+
+            if parsed == 5:  # just for test
+                await asyncio.sleep(120)

@@ -1,8 +1,13 @@
+import asyncio
 import os
+import typing
+from asyncio import queues
 from pathlib import Path
 
 from dotenv import load_dotenv
 from loguru import logger
+
+queue = asyncio.Queue()
 
 CURRENT_FILE_PATH = Path(__file__).resolve()
 SRC_DIR = next(p for p in CURRENT_FILE_PATH.parents if p.name == "src")
