@@ -7,6 +7,8 @@ from telethon import TelegramClient
 from telethon.errors import ChannelInvalidError
 from telethon.tl.types import channels
 
+from database import News
+
 from .models import AsyncSessionLocal, Base, engine
 
 
@@ -15,6 +17,33 @@ class DatabaseInit(abc.ABC):
     @abc.abstractmethod
     async def create(*args, **kwargs) -> None:
         pass
+
+
+@typing.final
+class NewsCRUD:
+    @staticmethod
+    async def save_after_analysis(to_insert: list) -> None:
+        async with AsyncSessionLocal() as session:
+            # in construct
+            query = text("""INSERT INTO news (
+                id, 
+                channel_id, 
+                channel_title,
+                data, 
+                views,
+                published_at)
+                 VALUES (
+
+                :channel_id, 
+                :channel_title, 
+                :channel_status, 
+                :subscribers, 
+                :last_parsed_at, 
+                :last_updated_at
+                ) ON CONFLICT DO NOT""")
+
+            await session.execute(query, params=to_insert)
+            await session.commit()
 
 
 @typing.final
@@ -66,34 +95,7 @@ class PostgresInit(DatabaseInit):
                 :subscribers, 
                 :last_parsed_at, 
                 :last_updated_at
-                ) ON CONFLICT DO NOTHING;""")
+                ) ON CONFLICT DO NOT""")
 
             await session.execute(query, params=to_insert)
-            await session.commit()
-
-    @staticmethod
-    async def fill_users_table(tg_session: TelegramClient) -> None:
-        async with AsyncSessionLocal() as session:
-            query = text("""INSERT INTO Users (
-                user_id, 
-                created_at) VALUES (
-
-                ) """)
-            data = []  # Under constract
-            await session.execute(query, params=data)
-
-    @staticmethod
-    async def fill_news_table(tg_session: TelegramClient) -> None:
-        async with AsyncSessionLocal() as session:
-            query = text("""INSERT INTO News (
-                channel_id, 
-                channel_title, 
-                text, 
-                views, 
-                published_at) VALUES (
-
-                ) """)
-            data = []  # Under constract
-            await session.execute(query, params=data)
-
             await session.commit()

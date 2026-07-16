@@ -85,7 +85,7 @@ class TelethonParser:
 
         today = datetime.now(timezone.utc).date()
         for channel in CHANNELS:
-            text = ""
+            news = []
             try:
                 parsed += 1
                 logger.debug(f"parsing {channel}...")
@@ -94,15 +94,14 @@ class TelethonParser:
                     logger.debug("recived message!")
                     await asyncio.sleep(1)
 
-                    text += "\n" + message.text
+                    news.append(message.text)
                     if message.date.date() != today:
                         break
 
             except Exception as e:
                 logger.exception(f"Error in parsing {channel}...")
 
-            if len(text) > 100:
-                await queue.put((TelethonCleaner.clean, [text], {}))
-
-            if parsed == 5:  # just for test
+            if len(news) > 4:
+                await queue.put((TelethonCleaner.clean, [news], {}))
+            if parsed == 2:
                 await asyncio.sleep(120)

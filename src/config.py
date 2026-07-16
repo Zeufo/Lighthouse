@@ -81,6 +81,7 @@ try:
 
     API_ID = os.getenv("API_ID")
     API_HASH = os.getenv("API_HASH")
+    AI_API = os.getenv("AI_API")
     TEST_LINK = os.getenv("TEST_LINK")
 
     required_vars = {
@@ -93,7 +94,10 @@ try:
         "API_HASH": API_HASH,
         "TEST_LINK": TEST_LINK,
         "BOT_TOKEN": BOT_TOKEN,
+        "AI_API": AI_API,
     }
+
+    logger.debug(f"required_vars: {required_vars}")
 
     for var_name, var_value in required_vars.items():
         if var_value is None:

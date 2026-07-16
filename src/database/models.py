@@ -1,4 +1,5 @@
-from sqlalchemy import JSON, BigInteger, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from telethon.tl.types import channels
@@ -32,7 +33,7 @@ class News(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     channel_id: Mapped[str] = mapped_column(nullable=False)
     channel_title: Mapped[str] = mapped_column(nullable=False)
-    text: Mapped[str] = mapped_column(nullable=False)
+    data: Mapped[dict] = mapped_column(JSONB, nullable=False)
     views: Mapped[str] = mapped_column(nullable=False)
     published_at: Mapped[str] = mapped_column(nullable=False)
 
