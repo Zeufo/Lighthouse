@@ -7,9 +7,7 @@ from telethon import TelegramClient
 from telethon.errors import ChannelInvalidError
 from telethon.tl.types import channels
 
-from database import News
-
-from .models import AsyncSessionLocal, Base, engine
+from .models import AsyncSessionLocal, Base, News, engine
 
 
 class DatabaseInit(abc.ABC):

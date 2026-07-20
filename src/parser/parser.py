@@ -7,9 +7,10 @@ from datetime import datetime, timezone
 import telethon
 from loguru import logger
 from telethon import TelegramClient
+from telethon.errors import FloodWaitError, MsgIdInvalidError, UsernameInvalidError
 
 from config import API_HASH, API_ID, CHANNELS, queue
-from utils import TelethonCleaner
+from services import Pipeline
 
 
 class Parser(abc.ABC):
@@ -80,28 +81,25 @@ class TelethonParser:
         return info
 
     @staticmethod
-    async def parse_today_news(client: TelegramClient) -> typing.Any:  # add session type
-        parsed = 0  # just for test
-
+    async def parse_today_news(channel: str, client: TelegramClient) -> list[str] | None:
         today = datetime.now(timezone.utc).date()
-        for channel in CHANNELS:
-            news = []
+        news = []
+        logger.debug(f"parsing {channel}...")
+
+        async for message in client.iter_messages(channel):
             try:
-                parsed += 1
-                logger.debug(f"parsing {channel}...")
+                logger.debug("recived message!")
+                await asyncio.sleep(1)
 
-                async for message in client.iter_messages(channel):
-                    logger.debug("recived message!")
-                    await asyncio.sleep(1)
+                news.append(message.text)
+                if message.date.date() != today:
+                    break
 
-                    news.append(message.text)
-                    if message.date.date() != today:
-                        break
+            except UsernameInvalidError:
+                logger.exception(f"Username invalid... {channel}")
+                return
 
-            except Exception as e:
-                logger.exception(f"Error in parsing {channel}...")
+            except MsgIdInvalidError:
+                logger.exception("message cant be reached")
 
-            if len(news) > 4:
-                await queue.put((TelethonCleaner.clean, [news], {}))
-            if parsed == 2:
-                await asyncio.sleep(120)
+        return news

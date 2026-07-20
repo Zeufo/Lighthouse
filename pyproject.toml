@@ -17,6 +17,7 @@ dependencies = [
   "psycopg[binary,pool]>=3.3.4",
   "sqlalchemy>=2.0.51",
   "telethon>=1.44.0",
+  "tenacity>=9.1.4",
 ]
 
 [tool.pyright]
