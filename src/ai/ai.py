@@ -14,7 +14,10 @@ client = AsyncOpenAI(api_key=AI_API, base_url="https://openrouter.ai/api/v1")
 
 class WorkerAI:
     @staticmethod
-    @retry(stop=stop_after_attempt(2), wait=wait_fixed(1), retry_if_exception_type=TimeoutError)
+    @retry(
+        stop=stop_after_attempt(2),
+        wait=wait_fixed(1),
+    )
     async def is_has_ad(text: list[str]) -> list | None:
         try:
             json_text = json.dumps(text, indent=2, ensure_ascii=False)

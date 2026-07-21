@@ -20,11 +20,10 @@ class DatabaseInit(abc.ABC):
 @typing.final
 class NewsCRUD:
     @staticmethod
-    async def save_after_analysis(to_insert: list) -> None:
+    async def save_after_analysis(to_insert: dict) -> None:
         async with AsyncSessionLocal() as session:
             # in construct
             query = text("""INSERT INTO news (
-                id, 
                 channel_id, 
                 channel_title,
                 data, 
@@ -34,11 +33,10 @@ class NewsCRUD:
 
                 :channel_id, 
                 :channel_title, 
-                :channel_status, 
-                :subscribers, 
-                :last_parsed_at, 
-                :last_updated_at
-                ) ON CONFLICT DO NOT""")
+                :data, 
+                :views,
+                :published_at
+                );""")
 
             await session.execute(query, params=to_insert)
             await session.commit()
@@ -93,7 +91,7 @@ class PostgresInit(DatabaseInit):
                 :subscribers, 
                 :last_parsed_at, 
                 :last_updated_at
-                ) ON CONFLICT DO NOT""")
+                ) ON CONFLICT DO NOTING;""")
 
             await session.execute(query, params=to_insert)
             await session.commit()

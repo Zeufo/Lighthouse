@@ -9,7 +9,9 @@ from database import PostgresInit
 from database.models import AsyncSessionLocal
 from handlers import get_main_router
 from parser import TelethonParser
-from utils import Worker, setup_logger
+from services import Pipeline
+from services.worker import Worker
+from utils import setup_logger
 
 
 class MainProcess:
@@ -39,18 +41,18 @@ class MainProcess:
     async def Start(client: TelegramClient) -> None:
         try:
             logger.info("Start main process...")
-            local_session = AsyncSessionLocal
             dp = Dispatcher()
-            dp["alchemy_session"] = local_session
             main_router = get_main_router()
             dp.include_router(main_router)
             bot = Bot(token=BOT_TOKEN)  # type: ignore
-
-            logger.info("prepare worker")
             asyncio.create_task(Worker.run())
             logger.info("worker is ready")
-            await TelethonParser.parse_today_news(client)
-            # logger.info("Bot is ready")
+
+            await client.disconnect()  # type:ignore #TODO: IT CANT BE NONE STOP MESS MY BRAIN
+            await asyncio.sleep(2)
+            await client.connect()
+
+            await Pipeline.process_news_and_save(client)
             # await dp.start_polling(bot)
         except Exception as e:
             logger.exception("Error in start")

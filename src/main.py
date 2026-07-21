@@ -9,7 +9,7 @@ from run import MainProcess
 
 
 async def main() -> None:
-    async with TelegramClient("news_parser", API_ID, API_HASH) as client:  # type:ignore
+    async with TelegramClient("news_parser", API_ID, API_HASH) as client:  # type: ignore
         await MainProcess.Preparation(client)
         await MainProcess.Start(client)
 

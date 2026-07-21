@@ -4,6 +4,8 @@ import typing
 from asyncio import queues
 from pathlib import Path
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -64,6 +66,10 @@ CHANNELS_BY_CATEGORY = {
     "CULT": ["@techinsiderru", "@postnauka", "@kinopoisk", "@art_of_it"],
 }
 
+
+scheduler = BackgroundScheduler(timezone="UTC")
+scheduler.add_jobstore(SQLAlchemyJobStore())
+scheduler.add
 
 try:
     load_dotenv(DOTENV_PATH)

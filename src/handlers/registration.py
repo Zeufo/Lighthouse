@@ -10,5 +10,5 @@ router = Router(name=__name__)
 
 
 @router.message(Command("agree", ignore_case=True))
-async def register(message: Message, alchemy_session):
-    await UserService.registrate(message, alchemy_session)
+async def register(message: Message):
+    await UserService.registrate(message)

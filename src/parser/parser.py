@@ -10,7 +10,6 @@ from telethon import TelegramClient
 from telethon.errors import FloodWaitError, MsgIdInvalidError, UsernameInvalidError
 
 from config import API_HASH, API_ID, CHANNELS, queue
-from services import Pipeline
 
 
 class Parser(abc.ABC):
@@ -81,13 +80,18 @@ class TelethonParser:
         return info
 
     @staticmethod
-    async def parse_today_news(channel: str, client: TelegramClient) -> list[str] | None:
+    async def parse_today_news(channel: str, client: TelegramClient) -> list:
+
         today = datetime.now(timezone.utc).date()
         news = []
+        channel_id = await client.get_peer_id(channel)
+        views = 0
+
         logger.debug(f"parsing {channel}...")
 
         async for message in client.iter_messages(channel):
             try:
+                views += message.views if message.views else 0
                 logger.debug("recived message!")
                 await asyncio.sleep(1)
 
@@ -97,9 +101,9 @@ class TelethonParser:
 
             except UsernameInvalidError:
                 logger.exception(f"Username invalid... {channel}")
-                return
+                return []
 
             except MsgIdInvalidError:
                 logger.exception("message cant be reached")
 
-        return news
+        return [news, channel_id, views]
