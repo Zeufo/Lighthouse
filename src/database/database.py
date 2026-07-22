@@ -1,5 +1,6 @@
 import abc
 import typing
+from datetime import datetime
 
 from loguru import logger
 from sqlalchemy import text
@@ -20,7 +21,7 @@ class DatabaseInit(abc.ABC):
 @typing.final
 class NewsCRUD:
     @staticmethod
-    async def save_after_analysis(to_insert: dict) -> None:
+    async def save_after_collect(to_insert: dict) -> None:
         async with AsyncSessionLocal() as session:
             # in construct
             query = text("""INSERT INTO news (
@@ -40,6 +41,23 @@ class NewsCRUD:
 
             await session.execute(query, params=to_insert)
             await session.commit()
+
+    @staticmethod
+    async def save_after_analysis_123123123(to_insert: dict) -> None:
+        pass
+
+    @staticmethod
+    async def get_daily_news_data_for_analysis() -> typing.Any:
+        async with AsyncSessionLocal() as session:
+            start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            start_of_day = int((start_of_day.timestamp()))
+            # query = text(f"""SELECT * FROM news WHERE published_at > {start_of_day};""")
+            query = text("""
+            SELECT COALESCE(SUM(LENGTH(elem)), 0)
+            FROM news, unnest(data) AS elem;
+            """)  # just for analyze
+            result = await session.execute(query)
+            return result.fetchall()
 
 
 @typing.final

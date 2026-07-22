@@ -67,9 +67,8 @@ CHANNELS_BY_CATEGORY = {
 }
 
 
-scheduler = BackgroundScheduler(timezone="UTC")
-scheduler.add_jobstore(SQLAlchemyJobStore())
-scheduler.add
+# scheduler = BackgroundScheduler(timezone="UTC")
+# scheduler.add_jobstore(SQLAlchemyJobStore())
 
 try:
     load_dotenv(DOTENV_PATH)
@@ -81,6 +80,7 @@ try:
     DB_PASS = os.getenv("DB_PASSWORD")
 
     BOT_TOKEN = os.getenv("BOT_TOKEN")
+    BASE_URL = os.getenv("BASE_URL")
 
     DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
     logger.debug(f"DB_URL: {repr(DB_URL)}")
