@@ -52,10 +52,11 @@ class NewsCRUD:
             start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             start_of_day = int((start_of_day.timestamp()))
             # query = text(f"""SELECT * FROM news WHERE published_at > {start_of_day};""")
-            query = text("""
-            SELECT COALESCE(SUM(LENGTH(elem)), 0)
-            FROM news, unnest(data) AS elem;
-            """)  # just for analyze
+            query = text("""SELECT channel_title, data FROM news;""")  # TODO: use this for debug
+            # query = text("""
+            # SELECT COALESCE(SUM(LENGTH(elem)), 0)
+            # FROM news, unnest(data) AS elem;
+            # """)  # just for analyze
             result = await session.execute(query)
             return result.fetchall()
 

@@ -7,9 +7,10 @@ from loguru import logger
 from openai import AsyncOpenAI
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
-from config import AI_API, BASE_URL
+from config import AI_API, AI_ROUTER_API, BASE_URL, OLD_BASE_URL
 
 client = AsyncOpenAI(api_key=AI_API, base_url=BASE_URL)
+router_client = AsyncOpenAI(api_key=AI_ROUTER_API, base_url=OLD_BASE_URL)
 
 
 @typing.final
@@ -19,9 +20,10 @@ class WorkerAI:
         stop=stop_after_attempt(2),
         wait=wait_fixed(1),
     )
+    # TODO: this finc has no profit. so wont use it. will delete later
     async def is_has_ad(text: list[str]) -> list | None:
         try:
-            json_text = json.dumps(text, indent=2, ensure_ascii=False)
+            # json_text = json.dumps(text, indent=2, ensure_ascii=False)
             system_promt = """You are a strict text classifier. Your task is to determine whether the provided text is advertising (a direct call to purchase a product/service, mention of a brand with a benefit, a promotion, or a commercial offer).
         Criteria:
         - YES — if the text contains a direct offer to buy, a discount, a call to action (order, call), mention of price, or product advantages.
@@ -30,10 +32,10 @@ class WorkerAI:
         """
 
             user_promt = f"Text for analysis...\n\n {text}"
-            logger.debug(f"trying to get response")
+            logger.debug("trying to get response")
             response = await asyncio.wait_for(
                 client.chat.completions.create(
-                    model="openrouter/free",
+                    model="gemini-1.5-flash",
                     messages=[
                         {"role": "system", "content": system_promt},
                         {"role": "user", "content": user_promt},
@@ -55,14 +57,40 @@ class WorkerAI:
             logger.exception(f"Error in is_has_ad {e}")
 
     @staticmethod
+    async def say_hello() -> list | None:
+        try:
+            # json_text = json.dumps(text, indent=2, ensure_ascii=False)
+            promt = 'you only say "hello." '
+
+            logger.debug("trying to get response")
+            response = await asyncio.wait_for(
+                client.chat.completions.create(
+                    model="gemini-3.5-flash-lite",
+                    messages=[
+                        {"role": "user", "content": promt},
+                    ],
+                    temperature=0.0,
+                ),
+                timeout=30,
+            )
+
+            result = response.choices[0].message.content
+            logger.warning(f"result is {result}")
+        except Exception as e:
+            logger.exception("No hello for us")
+
+    @staticmethod
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(1),
+    )
+    @staticmethod
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_fixed(1),
     )
     async def analyze_daily_data(data: list[list[str]]) -> typing.Any:
         try:
-            json_text = json.dumps(text, indent=2, ensure_ascii=False)
-
             system_promt = """You are a news analyst. Your task is to cluster and categorize daily Telegram news.
 
 INPUT: Array of news items with id, channel name, and text.
@@ -79,10 +107,14 @@ YOUR TASKS:
    - culture_lifestyle
 3. Write a clear, neutral title and a 2-3 sentence summary in Russian for each cluster.
 4. Rate fact_quality from 1 to 5: 5 = confirmed fact/official statement/statistic, 1 = rumor/unverified claim/opinion.
-5. Skip pure entertainment, clickbait without substance, and single-source unverifiable gossip.
+5. Skip pure entertainment, clickbait without substance, 
+   single-source unverifiable gossip, AND advertising/promotional content.
 6. List the ids of all source news items that belong to this cluster.
 
 Do NOT invent channel names or ids that weren't in the input.
+
+
+
 
 OUTPUT: Return ONLY a valid JSON object, no markdown fences, no explanation text.
 
@@ -101,11 +133,11 @@ EXAMPLE OUTPUT:
 
 If no significant clusters exist for a category, simply don't include entries for it."""
 
-            user_promt = f"Text for analysis...\n\n {text}"
-            logger.debug(f"trying to get response")
+            user_promt = f"data for analysis...\n\n {data}"
+            logger.debug("trying to get response")
             response = await asyncio.wait_for(
                 client.chat.completions.create(
-                    model="openrouter/free",
+                    model="gemini-3.5-flash-lite",
                     messages=[
                         {"role": "system", "content": system_promt},
                         {"role": "user", "content": user_promt},
@@ -113,16 +145,13 @@ If no significant clusters exist for a category, simply don't include entries fo
                     temperature=0.0,
                     response_format={"type": "json_object"},
                 ),
-                timeout=30,
+                timeout=3600,
             )
 
             logger.debug("trying to get result")
             result = response.choices[0].message.content
             logger.warning(f"result is {result}")
 
-            if isinstance(result, list):
-                return result
-            else:
-                return None
+            return result
         except Exception as e:
             logger.exception(f"Error in is_has_ad {e}")

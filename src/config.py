@@ -4,8 +4,6 @@ import typing
 from asyncio import queues
 from pathlib import Path
 
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -66,10 +64,6 @@ CHANNELS_BY_CATEGORY = {
     "CULT": ["@techinsiderru", "@postnauka", "@kinopoisk", "@art_of_it"],
 }
 
-
-# scheduler = BackgroundScheduler(timezone="UTC")
-# scheduler.add_jobstore(SQLAlchemyJobStore())
-
 try:
     load_dotenv(DOTENV_PATH)
 
@@ -81,6 +75,7 @@ try:
 
     BOT_TOKEN = os.getenv("BOT_TOKEN")
     BASE_URL = os.getenv("BASE_URL")
+    OLD_BASE_URL = os.getenv("OLD_BASE_URL")
 
     DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
     logger.debug(f"DB_URL: {repr(DB_URL)}")
@@ -88,6 +83,8 @@ try:
     API_ID = os.getenv("API_ID")
     API_HASH = os.getenv("API_HASH")
     AI_API = os.getenv("AI_API")
+    AI_ROUTER_API = os.getenv("AI_ROUTER_API")
+
     TEST_LINK = os.getenv("TEST_LINK")
 
     required_vars = {

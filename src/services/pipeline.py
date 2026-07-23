@@ -10,11 +10,7 @@ from config import CHANNELS, queue
 from database import AsyncSessionLocal, NewsCRUD
 from parser import TelethonParser
 from services.format_service import TelethonCleaner
-from services.news_service import collect_news_cycle
-
-
-async def daily_data_service() -> None:
-    pass
+from services.news_service import analyze_daily_data, collect_news_cycle
 
 
 class Pipeline:
@@ -27,4 +23,10 @@ class Pipeline:
 
     @staticmethod
     async def analyze_daily_data() -> typing.Any:
-        await queue.put(daily_data_service)
+        await queue.put((analyze_daily_data, [], {}))
+        await queue.join()
+
+    @staticmethod
+    async def is_connected() -> typing.Any:
+        await queue.put((WorkerAI.say_hello, [], {}))
+        await queue.join()

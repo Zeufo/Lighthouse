@@ -92,7 +92,6 @@ class TelethonParser:
         async for message in client.iter_messages(channel):
             try:
                 views += message.views if message.views else 0
-                logger.debug("recived message!")
                 await asyncio.sleep(1)
 
                 news.append(message.text)

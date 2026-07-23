@@ -48,11 +48,9 @@ class MainProcess:
             asyncio.create_task(Worker.run())
             logger.info("worker is ready")
 
-            await client.disconnect()  # type:ignore #TODO: IT CANT BE NONE STOP MESS MY BRAIN
-            await asyncio.sleep(2)
-            await client.connect()
-
-            await Pipeline.process_news_and_save(client)
+            # await Pipeline.is_connected()  # TODO: think about to stop run if not
+            # await Pipeline.process_news_and_save(client)
+            await Pipeline.analyze_daily_data()
             # await dp.start_polling(bot)
         except Exception as e:
             logger.exception("Error in start")
