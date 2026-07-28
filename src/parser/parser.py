@@ -80,9 +80,8 @@ class TelethonParser:
         return info
 
     @staticmethod
-    async def parse_today_news(channel: str, client: TelegramClient) -> list:
+    async def parse_today_news(channel: str, last_parse_session, client: TelegramClient) -> list:
 
-        today = datetime.now(timezone.utc).date()
         news = []
         channel_id = await client.get_peer_id(channel)
         views = 0
@@ -91,11 +90,12 @@ class TelethonParser:
 
         async for message in client.iter_messages(channel):
             try:
+                logger.debug("message recived")
                 views += message.views if message.views else 0
                 await asyncio.sleep(1)
 
                 news.append(message.text)
-                if message.date.date() != today:
+                if message.date.date() < last_parse_session:
                     break
 
             except UsernameInvalidError:

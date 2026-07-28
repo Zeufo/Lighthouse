@@ -54,9 +54,5 @@ class Digest(Base):
     __tablename__ = "digest"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    date: Mapped[str] = mapped_column(nullable=False)
-    category: Mapped[str] = mapped_column(nullable=False)
-    content: Mapped[str] = mapped_column(nullable=False)
-    is_approved: Mapped[str] = mapped_column(nullable=False)
-    admin_comment: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[str] = mapped_column(nullable=False)
+    date: Mapped[int] = mapped_column(nullable=False)
+    content: Mapped[dict] = mapped_column(JSONB, nullable=False)

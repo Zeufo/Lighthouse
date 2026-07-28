@@ -13,42 +13,57 @@ CURRENT_FILE_PATH = Path(__file__).resolve()
 SRC_DIR = next(p for p in CURRENT_FILE_PATH.parents if p.name == "src")
 DOTENV_PATH = SRC_DIR.parent / ".env"
 
-
+# 1 - checked. 0 - not
 CHANNELS = [
     # RUS
-    "@bazabaza",
-    "@breakingmash",
-    "@rbc_news",
-    "@kommersant",
-    "@rian_ru",
-    "@ostorozhno_novosti",
+    "@bazabazon",  # 1
+    "@rbc_news",  # 1
+    "@kommersant",  # 1
+    "@rian_ru",  # 1
+    "@ostorozhno_novosti",  # 1
     # EU
-    "@bbcrussian",
-    "@dwglavnoe",
-    "@thebell_io",
-    "@rtvi_news",
-    "@euronews_ru",
+    "@bbcrussian",  # 1
+    "@dwglavnoe",  # 1
+    "@thebell_io",  # 1
+    "@rtvimain",  # 1
+    "@euronews_ru",  # 1
     # ECO
-    "@prostoecon",
-    "@banksta",
-    "@cb_economics",
-    "@marketoverview",
-    "@fatcat18",
+    "@prostoecon",  # 1
+    "@cb_economics",  # 1
+    "@marketoverview",  # 1
+    "@fatcat18",  # 1
+    # crypto_fintech
+    "@forklog",
+    "@RBCCrypto",
+    "@frank_media",
+    # society
+    "@pravo_ru",
+    "@gosuslugi",
     # IT & TECH
-    "@koddurova",
-    "@exploitex",
-    "@addmeto",
-    "@denis_sexy_it",
-    "@tproger",
-    "@dataleak",
+    "@NPlusOne",
+    "@d_code",  # 1
+    "@exploitex",  # 1
+    "@addmeto",  # 1
+    "@denissexy",  # 1
+    "@tproger",  # 1
     # CULT
-    "@techinsiderru",
-    "@postnauka",
+    "@techinsiderru",  # 1
+    "@postnauka",  # 1
     "@kinopoisk",
-    "@art_of_it",
+    "@art_of_it",  # 1
+    "@koddurova",  # 1
+    "@theblueprintru",
+    # FUN
+    "@ia_panorama",
+    "@lentachold",
+    # ECOLOGY
+    "@kedr_media",
+    "@ecosphere_press",
+    "@sobirator",
 ]
 
 
+# NOT UPDATED
 CHANNELS_BY_CATEGORY = {
     "RUS": [
         "@bazabaza",

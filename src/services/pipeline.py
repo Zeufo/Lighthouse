@@ -17,6 +17,7 @@ class Pipeline:
     @staticmethod
     async def process_news_and_save(client: TelegramClient) -> None:
         for channel in CHANNELS:
+            channel = CHANNELS[0]
             await queue.put((collect_news_cycle, [channel, client], {}))
 
         await queue.join()

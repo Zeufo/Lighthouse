@@ -1,14 +1,16 @@
 import abc
+import time
 import typing
 from datetime import datetime
+from typing import Optional
 
 from loguru import logger
-from sqlalchemy import text
+from sqlalchemy import Row, insert, text
 from telethon import TelegramClient
 from telethon.errors import ChannelInvalidError
 from telethon.tl.types import channels
 
-from .models import AsyncSessionLocal, Base, News, engine
+from .models import AsyncSessionLocal, Base, Digest, News, engine
 
 
 class DatabaseInit(abc.ABC):
@@ -23,28 +25,27 @@ class NewsCRUD:
     @staticmethod
     async def save_after_collect(to_insert: dict) -> None:
         async with AsyncSessionLocal() as session:
-            # in construct
-            query = text("""INSERT INTO news (
-                channel_id, 
-                channel_title,
-                data, 
-                views,
-                published_at)
-                 VALUES (
+            try:
+                query = insert(News).values(**to_insert)
+                await session.execute(query)
+                await session.commit()
+            except Exception as e:
+                logger.exception("Error in saving news", e)
 
-                :channel_id, 
-                :channel_title, 
-                :data, 
-                :views,
-                :published_at
-                );""")
-
-            await session.execute(query, params=to_insert)
+    @staticmethod
+    async def save_after_analysis(to_insert: dict) -> Row | None:
+        async with AsyncSessionLocal() as session:
+            date = int(time.time())
+            query = insert(Digest).values(content=to_insert, date=date)
+            await session.execute(query, {"to_insert": to_insert})
             await session.commit()
 
     @staticmethod
-    async def save_after_analysis_123123123(to_insert: dict) -> None:
-        pass
+    async def get_last_parse_session_time() -> Optional[Row]:
+        async with AsyncSessionLocal() as session:
+            query = text("SELECT MAX(published_at) FROM news")
+            result = await session.execute(query)
+            return result.fetchone()
 
     @staticmethod
     async def get_daily_news_data_for_analysis() -> typing.Any:

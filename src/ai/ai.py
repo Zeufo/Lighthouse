@@ -105,6 +105,7 @@ YOUR TASKS:
    - crypto_fintech
    - emergencies
    - culture_lifestyle
+   - ecology
 3. Write a clear, neutral title and a 2-3 sentence summary in Russian for each cluster.
 4. Rate fact_quality from 1 to 5: 5 = confirmed fact/official statement/statistic, 1 = rumor/unverified claim/opinion.
 5. Skip pure entertainment, clickbait without substance, 
