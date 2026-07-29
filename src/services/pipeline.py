@@ -16,10 +16,11 @@ from services.news_service import analyze_daily_data, collect_news_cycle
 class Pipeline:
     @staticmethod
     async def process_news_and_save(client: TelegramClient) -> None:
+        start = time.time()
         for channel in CHANNELS:
-            channel = CHANNELS[0]
             await queue.put((collect_news_cycle, [channel, client], {}))
 
+        logger.debug(f"collect news cycle took {int(time.time() - start)} seconds")
         await queue.join()
 
     @staticmethod

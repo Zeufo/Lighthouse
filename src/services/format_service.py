@@ -1,4 +1,5 @@
 import abc
+import asyncio
 import re
 import typing
 
@@ -36,15 +37,67 @@ class TelethonCleaner(Cleaner):
                 text[write_idx] = text[read_idx]
                 write_idx += 1
 
-        # some issue with AI_API... so fake it until we fix it:
-        # ai_response = await WorkerAI.is_has_ad(text)
-        # if ai_response is None:
-        #    return []
-        # write_idx = 0
-        # for idx, answer in enumerate(ai_response):
-        #    if answer == "NO":
-        #        text[write_idx] = text[idx]
-        #        write_idx += 1
-
         logger.debug(f"text is {text}")
         return text
+
+
+CATEGORY_TITLES = {
+    "politics": "🏛 Политика",
+    "economy": "💰 Экономика",
+    "technology": "💻 Технологии",
+    "society": "⚖️ Общество",
+    "crypto_fintech": "🪙 Крипто и финтех",
+    "emergencies": "🚨 Происшествия",
+    "culture_lifestyle": "🎭 Культура",
+    "ecology": "🌿 Экология",
+}
+
+TELEGRAM_LIMIT = 4096
+
+
+async def format_digest(data: dict) -> list[str]:
+    """
+    Принимает словарь с ключом "clusters" (результат анализа ИИ),
+    возвращает список готовых сообщений для отправки в Telegram,
+    каждое не длиннее 4096 символов.
+    """
+    clusters = data.get("clusters", [])
+    if not clusters:
+        return ["Сегодня значимых новостей не найдено."]
+
+    # группируем кластеры по категориям
+    grouped: dict[str, list[dict]] = {}
+    for item in clusters:
+        category = item.get("category", "other")
+        grouped.setdefault(category, []).append(item)
+
+    messages: list[str] = []
+    current_message = "📰 <b>Дайджест новостей за день</b>\n"
+
+    for category, items in grouped.items():
+        title = CATEGORY_TITLES.get(category, category.capitalize())
+        block = f"\n<b>{title}</b>\n"
+
+        for item in items:
+            news_title = item.get("title", "")
+            summary = item.get("summary", "")
+            fact_quality = item.get("fact_quality", 0)
+            reliability = "✅" if fact_quality >= 4 else "⚠️" if fact_quality >= 2 else "❓"
+
+            entry = f"\n{reliability} <b>{news_title}</b>\n{summary}\n"
+
+            # проверяем влезет ли ещё одна новость в текущее сообщение
+            if len(current_message) + len(block) + len(entry) > TELEGRAM_LIMIT:
+                messages.append(current_message.strip())
+                current_message = f"<b>{title}</b> (продолжение)\n"
+                block = ""  # заголовок категории уже не нужен, если делим её саму
+
+            current_message += block + entry
+            block = ""  # заголовок категории добавляем один раз
+
+        await asyncio.sleep(1)  # даём event loop передышку на больших дайджестах
+
+    if current_message.strip():
+        messages.append(current_message.strip())
+
+    return messages

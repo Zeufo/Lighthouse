@@ -1,4 +1,7 @@
 # TODO: Put it in Docker IDK
+# 1. change eco news source
+# 2. culture news
+# 3. actually, let it work for a while.
 import asyncio
 
 from loguru import logger

@@ -52,14 +52,22 @@ class NewsCRUD:
         async with AsyncSessionLocal() as session:
             start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             start_of_day = int((start_of_day.timestamp()))
-            # query = text(f"""SELECT * FROM news WHERE published_at > {start_of_day};""")
-            query = text("""SELECT channel_title, data FROM news;""")  # TODO: use this for debug
-            # query = text("""
-            # SELECT COALESCE(SUM(LENGTH(elem)), 0)
-            # FROM news, unnest(data) AS elem;
-            # """)  # just for analyze
-            result = await session.execute(query)
+            query = text("""SELECT channel_title, data
+            FROM news
+            WHERE published_at >= COALESCE(
+            (SELECT MAX(date) FROM digest),
+            :fallback_time);
+            """)
+
+            result = await session.execute(query, {"fallback_time": start_of_day})
             return result.fetchall()
+
+    @staticmethod
+    async def get_digest() -> typing.Any:
+        async with AsyncSessionLocal() as session:
+            query = text("""SELECT content FROM digest ORDER By date DESC LIMIT 1;""")
+            result = await session.execute(query)
+            return result.fetchone()
 
 
 @typing.final

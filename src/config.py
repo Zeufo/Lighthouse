@@ -37,7 +37,7 @@ CHANNELS = [
     "@RBCCrypto",
     "@frank_media",
     # society
-    "@pravo_ru",
+    "@pravo_pravo",
     "@gosuslugi",
     # IT & TECH
     "@NPlusOne",
@@ -50,8 +50,7 @@ CHANNELS = [
     "@techinsiderru",  # 1
     "@postnauka",  # 1
     "@kinopoisk",
-    "@art_of_it",  # 1
-    "@koddurova",  # 1
+    "@d_code",  # 1
     "@theblueprintru",
     # FUN
     "@ia_panorama",

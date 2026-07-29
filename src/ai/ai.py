@@ -75,15 +75,10 @@ class WorkerAI:
             )
 
             result = response.choices[0].message.content
-            logger.warning(f"result is {result}")
+            logger.warning(f"response is {result}")
         except Exception as e:
-            logger.exception("No hello for us")
+            logger.exception("No hello for us", e)
 
-    @staticmethod
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(1),
-    )
     @staticmethod
     @retry(
         stop=stop_after_attempt(3),
@@ -93,7 +88,7 @@ class WorkerAI:
         try:
             system_promt = """You are a news analyst. Your task is to cluster and categorize daily Telegram news.
 
-INPUT: Array of news items with id, channel name, and text.
+INPUT: Array of news items with channel name, and text.
 
 YOUR TASKS:
 1. Group news items that describe the same event into clusters, even if phrased differently across channels.
@@ -108,14 +103,17 @@ YOUR TASKS:
    - ecology
 3. Write a clear, neutral title and a 2-3 sentence summary in Russian for each cluster.
 4. Rate fact_quality from 1 to 5: 5 = confirmed fact/official statement/statistic, 1 = rumor/unverified claim/opinion.
-5. Skip pure entertainment, clickbait without substance, 
-   single-source unverifiable gossip, AND advertising/promotional content.
-6. List the ids of all source news items that belong to this cluster.
+5. Skip advertising/promotional content and pure entertainment.
+6. A single mention does NOT automatically mean unreliable — 
+   if the fact is stated clearly and neutrally (official statement, 
+   confirmed event, verifiable data), include it even from one source, 
+   but reflect this in a lower fact_quality score if uncorroborated.
+7. Only skip genuinely unverifiable rumors or gossip lacking any concrete 
+   factual basis, regardless of source count.
 
 Do NOT invent channel names or ids that weren't in the input.
-
-
-
+Only include a channel in "channels" if it reports THIS SPECIFIC event, 
+not just mentions related entities in passing.
 
 OUTPUT: Return ONLY a valid JSON object, no markdown fences, no explanation text.
 
@@ -151,8 +149,12 @@ If no significant clusters exist for a category, simply don't include entries fo
 
             logger.debug("trying to get result")
             result = response.choices[0].message.content
-            logger.warning(f"result is {result}")
+            if result:
+                result = json.loads(result)
+            else:
+                result = ""
 
+            logger.warning(f"result is {result}")
             return result
         except Exception as e:
             logger.exception(f"Error in is_has_ad {e}")
