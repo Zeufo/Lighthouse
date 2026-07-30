@@ -1,14 +1,17 @@
 import asyncio
 
-from aiogram import Bot, Dispatcher
+from aiogram import Dispatcher
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from loguru import logger
 from telethon import TelegramClient
 
+from bot import BOT
 from config import API_HASH, API_ID, BOT_TOKEN, CHANNELS, TEST_LINK
 from database import PostgresInit
 from database.models import AsyncSessionLocal
 from handlers import get_main_router
 from parser import TelethonParser
+from scheduler import my_scheduler
 from services import Pipeline
 from services.news_service import send_digest_to_users
 from services.worker import Worker
@@ -45,16 +48,16 @@ class MainProcess:
             dp = Dispatcher()
             main_router = get_main_router()
             dp.include_router(main_router)
-            bot = Bot(token=BOT_TOKEN)  # type: ignore
             asyncio.create_task(Worker.run())
-            asyncio.create_task(send_digest_to_users())
+
             logger.info("worker is ready")
-
+            # my_scheduler.start()
             # await Pipeline.is_connected()  # TODO: think about to stop run if not
-            # await Pipeline.process_news_and_save(client)
-            # await Pipeline.analyze_daily_data()
+            await Pipeline.process_news_and_save(client)
+            await Pipeline.analyze_daily_data()
 
-            await dp.start_polling(bot)
+            asyncio.create_task(send_digest_to_users())
+            await dp.start_polling(BOT)
 
         except Exception as e:
             logger.exception("Error in start")

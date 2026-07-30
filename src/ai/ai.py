@@ -115,6 +115,13 @@ Do NOT invent channel names or ids that weren't in the input.
 Only include a channel in "channels" if it reports THIS SPECIFIC event, 
 not just mentions related entities in passing.
 
+IMPORTANT: The input contains news from specialized channels covering 
+technology, crypto, and ecology topics specifically. Even if political 
+news dominates by volume, you MUST actively look for and include distinct 
+clusters from technology, crypto_fintech, and ecology categories if any 
+relevant news exists in the input — do not let them get overshadowed.
+
+
 OUTPUT: Return ONLY a valid JSON object, no markdown fences, no explanation text.
 
 EXAMPLE OUTPUT:

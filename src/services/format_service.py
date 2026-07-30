@@ -65,14 +65,13 @@ async def format_digest(data: dict) -> list[str]:
     if not clusters:
         return ["Сегодня значимых новостей не найдено."]
 
-    # группируем кластеры по категориям
     grouped: dict[str, list[dict]] = {}
     for item in clusters:
         category = item.get("category", "other")
         grouped.setdefault(category, []).append(item)
 
     messages: list[str] = []
-    current_message = "📰 <b>Дайджест новостей за день</b>\n"
+    current_message = "📰 <b>Новости за сегодня</b>\n"
 
     for category, items in grouped.items():
         title = CATEGORY_TITLES.get(category, category.capitalize())
@@ -82,20 +81,25 @@ async def format_digest(data: dict) -> list[str]:
             news_title = item.get("title", "")
             summary = item.get("summary", "")
             fact_quality = item.get("fact_quality", 0)
+            channels = item.get("channels", [])
+
             reliability = "✅" if fact_quality >= 4 else "⚠️" if fact_quality >= 2 else "❓"
+            sources = len(channels)
 
-            entry = f"\n{reliability} <b>{news_title}</b>\n{summary}\n"
+            if sources == 0:
+                sources = "Не указаны"
 
-            # проверяем влезет ли ещё одна новость в текущее сообщение
+            entry = f"\n{reliability} <b>{news_title}</b>\n{summary}\n<i>Источники: {sources}</i>\n"
+
             if len(current_message) + len(block) + len(entry) > TELEGRAM_LIMIT:
                 messages.append(current_message.strip())
                 current_message = f"<b>{title}</b> (продолжение)\n"
-                block = ""  # заголовок категории уже не нужен, если делим её саму
+                block = ""
 
             current_message += block + entry
-            block = ""  # заголовок категории добавляем один раз
+            block = ""
 
-        await asyncio.sleep(1)  # даём event loop передышку на больших дайджестах
+        await asyncio.sleep(0)
 
     if current_message.strip():
         messages.append(current_message.strip())

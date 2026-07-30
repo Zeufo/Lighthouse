@@ -9,10 +9,12 @@ from loguru import logger
 from telethon import TelegramClient
 
 from ai import WorkerAI
+from bot import BOT
 from config import CHANNELS, queue
 from database import AsyncSessionLocal, NewsCRUD
 from parser import TelethonParser
 from services.format_service import TelethonCleaner, format_digest
+from services.registration_service import UserService
 
 
 async def collect_news_cycle(channel: str, client: TelegramClient) -> None:
@@ -72,5 +74,15 @@ async def analyze_daily_data() -> typing.Any:
 # just curious
 async def send_digest_to_users() -> None:
     data = await NewsCRUD.get_digest()
-    data = await format_digest(data[0])
-    logger.debug(f"data is to send {data}")
+    messages = await format_digest(data[0])
+    users = await UserService.get_all_users()
+    logger.debug(f"users: {users}")
+    logger.debug(f"messages: {messages}")
+
+    for message in messages:
+        for user in users[0]:
+            try:
+                await BOT.send_message(user, message, parse_mode="HTML")
+                await asyncio.sleep(1)
+            except Exception as e:
+                logger.debug("Cant send message!")
