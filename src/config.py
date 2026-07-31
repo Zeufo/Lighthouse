@@ -114,7 +114,7 @@ try:
         "AI_API": AI_API,
     }
 
-    logger.debug(f"required_vars: {required_vars}")
+    #logger.debug(f"required_vars: {required_vars}")
 
     for var_name, var_value in required_vars.items():
         if var_value is None:
