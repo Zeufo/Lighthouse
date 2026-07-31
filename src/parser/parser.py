@@ -85,17 +85,19 @@ class TelethonParser:
         news = []
         channel_id = await client.get_peer_id(channel)
         views = 0
+        messages = 0
 
         logger.debug(f"parsing {channel}...")
 
         async for message in client.iter_messages(channel):
             try:
-                logger.debug("message recived")
+                messages += 1
                 views += message.views if message.views else 0
                 await asyncio.sleep(1)
 
                 news.append(message.text)
                 if message.date.date() < last_parse_session:
+                    logger.debug(f"{messages} total messages")
                     break
 
             except UsernameInvalidError:

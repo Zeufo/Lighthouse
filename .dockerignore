@@ -1,0 +1,13 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+.git/
+# Базы данных и файлы сессий
+*.db
+*.sqlite
+*.sqlite3
+*.session
+*.session-journal
+

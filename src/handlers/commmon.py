@@ -14,7 +14,7 @@ router = Router(name=__name__)
 async def say_hello(message: Message) -> None:
     await message.answer(
         """Бот сделан с целью получения доступной сводки по новостям за прошедший день.
-ежедневно в 20:00 часов по МСК.
+ежедневно в 19:00 часов по МСК.\n
 Вся информация береться из доступных источников.
 Используйте /agree чтобы подписаться на расслыку или /commands для списка комманд.
         """
@@ -27,6 +27,7 @@ async def info(message: Message) -> None:
     await message.answer(
         """Разрботчик ...
 Ссылка на GitHub: ...
+p.s. Потом как-нибудь
         """
     )
 
@@ -37,7 +38,6 @@ async def commands(message: Message) -> None:
         """/start начать
 /commands список команд
 /agree подписаться на расслыку 
-/previous последняя акутальная сводка
-/last_three последнии три сводки
+/digest последняя акутальная сводка
         """
     )

@@ -23,7 +23,7 @@ class Pipeline:
         for channel in CHANNELS:
             await queue.put((collect_news_cycle, [channel, client], {}))
 
-        logger.debug(f"collect news cycle took {int(time.time() - start)} seconds")
+        logger.info(f"collect news cycle took {int(time.time() - start)} seconds")
         await queue.join()
 
     @staticmethod

@@ -72,17 +72,24 @@ async def analyze_daily_data() -> typing.Any:
 
 
 # just curious
-async def send_digest_to_users() -> None:
+async def send_digest_to_users(id: int) -> None:
     data = await NewsCRUD.get_digest()
     messages = await format_digest(data[0])
-    users = await UserService.get_all_users()
+
+    if not id:
+        users = await UserService.get_all_users()
+    else:
+        users = []
+        users.append((id,))
+
     logger.debug(f"users: {users}")
     logger.debug(f"messages: {messages}")
 
     for message in messages:
-        for user in users[0]:
+        for user in users[0]:  # type:ignore  # it cant be none since i give it here
             try:
                 await BOT.send_message(user, message, parse_mode="HTML")
                 await asyncio.sleep(1)
             except Exception as e:
-                logger.debug("Cant send message!")
+                logger.exception("Cant send message!", e)
+                await asyncio.sleep(1)

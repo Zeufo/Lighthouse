@@ -1,1 +1,1 @@
-from .scheduler import my_scheduler
+from .scheduler import Scheduler

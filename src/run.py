@@ -11,7 +11,7 @@ from database import PostgresInit
 from database.models import AsyncSessionLocal
 from handlers import get_main_router
 from parser import TelethonParser
-from scheduler import my_scheduler
+from scheduler import Scheduler
 from services import Pipeline
 from services.news_service import send_digest_to_users
 from services.worker import Worker
@@ -27,17 +27,15 @@ class MainProcess:
 
             is_empty = await PostgresInit.is_empty()
             logger.debug(is_empty)
-            if is_empty:  # Not implemented yet
+            if is_empty:
                 logger.info("Table is empty, start fill process...")
-                # await PostgresInit.fill_channels_table()
-                # TODO: fill table func here
+                logger.debug("Start parsing channels...")
+                logger.debug("Parsed")
 
-            logger.debug("Start parsing channels...")
+                await TelethonParser.parse_channels_status(client)
+                channels_data = await TelethonParser.parse_channels_info(client)
+                await PostgresInit.fill_channels_table(channels_data)
 
-            # await TelethonParser.parse_channels_status(client)
-            # channels_data = await TelethonParser.parse_channels_info(client)
-            # await PostgresInit.fill_channels_table(channels_data)
-            logger.debug("Parsed")
         except Exception as e:
             logger.exception("Error in preparation")
 
@@ -51,12 +49,13 @@ class MainProcess:
             asyncio.create_task(Worker.run())
 
             logger.info("worker is ready")
-            # my_scheduler.start()
-            # await Pipeline.is_connected()  # TODO: think about to stop run if not
-            await Pipeline.process_news_and_save(client)
-            await Pipeline.analyze_daily_data()
+            await Scheduler.add_schedule(client)
 
-            asyncio.create_task(send_digest_to_users())
+            # await Pipeline.is_connected()  # TODO: think about to stop run if not
+            # await Pipeline.process_news_and_save(client)
+            # await Pipeline.analyze_daily_data()
+            # await send_digest_to_users(0)
+            #
             await dp.start_polling(BOT)
 
         except Exception as e:
