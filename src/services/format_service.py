@@ -2,6 +2,8 @@ import abc
 import asyncio
 import re
 import typing
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from loguru import logger
 from telethon.helpers import add_surrogate
@@ -55,7 +57,10 @@ CATEGORY_TITLES = {
 TELEGRAM_LIMIT = 4096
 
 
-async def format_digest(data: dict) -> list[str]:
+samara_tz = ZoneInfo("Europe/Samara")
+
+
+async def format_digest(data: dict, time: int) -> list[str]:
     """
     Принимает словарь с ключом "clusters" (результат анализа ИИ),
     возвращает список готовых сообщений для отправки в Telegram,
@@ -65,13 +70,18 @@ async def format_digest(data: dict) -> list[str]:
     if not clusters:
         return ["Сегодня значимых новостей не найдено."]
 
+    dt = datetime.fromtimestamp(time, tz=samara_tz)
+    date_str = dt.strftime("%d.%m.%Y")
+    header_title = "Новости за прошедшую ночь" if dt.hour < 13 else "Новости за сегодня"
+    header = f"📰 <b>{header_title}</b>\n{date_str}\n"
+
     grouped: dict[str, list[dict]] = {}
     for item in clusters:
         category = item.get("category", "other")
         grouped.setdefault(category, []).append(item)
 
     messages: list[str] = []
-    current_message = "📰 <b>Новости за сегодня</b>\n"
+    current_message = header + "\n"
 
     for category, items in grouped.items():
         title = CATEGORY_TITLES.get(category, category.capitalize())

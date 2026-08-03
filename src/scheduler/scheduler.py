@@ -24,6 +24,14 @@ class Scheduler:
             args=(client,),
         )
 
+        my_scheduler.add_job(
+            Pipeline.run_full_cycle,
+            trigger="cron",
+            hour=6,
+            minute=30,
+            args=(client,),
+        )
+
         my_scheduler.start()
 
         logger.info("Scheduler is ready")

@@ -15,7 +15,7 @@ from scheduler import Scheduler
 from services import Pipeline
 from services.news_service import send_digest_to_users
 from services.worker import Worker
-from utils import setup_logger
+from utils import setup_logger, AntiSpamMiddleware
 
 
 class MainProcess:
@@ -46,6 +46,7 @@ class MainProcess:
             dp = Dispatcher()
             main_router = get_main_router()
             dp.include_router(main_router)
+            dp.update.outer_middleware(AntiSpamMiddleware(1))
             asyncio.create_task(Worker.run())
 
             logger.info("worker is ready")

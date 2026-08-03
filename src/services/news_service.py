@@ -72,11 +72,11 @@ async def analyze_daily_data() -> typing.Any:
 
 
 # just curious
-async def send_digest_to_users(id: int) -> None:
+async def send_digest_to_users(id=None) -> None:
     data = await NewsCRUD.get_digest()
-    messages = await format_digest(data[0])
+    messages = await format_digest(data[0], data[1])  # [0] -> content; [1] -> int time 1284000
 
-    if not id:
+    if id is None:
         users = await UserService.get_all_users()
     else:
         users = []

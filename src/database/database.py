@@ -65,7 +65,7 @@ class NewsCRUD:
     @staticmethod
     async def get_digest() -> typing.Any:
         async with AsyncSessionLocal() as session:
-            query = text("""SELECT content FROM digest ORDER By date DESC LIMIT 1;""")
+            query = text("""SELECT content, date FROM digest ORDER By date DESC LIMIT 1;""")
             result = await session.execute(query)
             return result.fetchone()
 
