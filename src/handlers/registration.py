@@ -12,3 +12,4 @@ router = Router(name=__name__)
 @router.message(Command("agree", ignore_case=True))
 async def register(message: Message):
     await UserService.registrate(message)
+    await message.answer('Зарегистрировано!')

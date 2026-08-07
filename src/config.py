@@ -88,6 +88,7 @@ try:
     DB_PASS = os.getenv("DB_PASSWORD")
 
     BOT_TOKEN = os.getenv("BOT_TOKEN")
+    ADMIN_ID = os.getenv("ADMIN_ID")
     BASE_URL = os.getenv("BASE_URL")
     OLD_BASE_URL = os.getenv("OLD_BASE_URL")
 
@@ -114,7 +115,7 @@ try:
         "AI_API": AI_API,
     }
 
-    #logger.debug(f"required_vars: {required_vars}")
+    # logger.debug(f"required_vars: {required_vars}")
 
     for var_name, var_value in required_vars.items():
         if var_value is None:

@@ -106,18 +106,18 @@ class PostgresInit(DatabaseInit):
     async def fill_channels_table(to_insert: list) -> None:
         async with AsyncSessionLocal() as session:
             query = text("""INSERT INTO channels (
-                channel_id, 
-                channel_title, 
+                channel_id,
+                channel_title,
                 channel_status,
-                subscribers, 
-                last_parsed_at, 
+                subscribers,
+                last_parsed_at,
                 last_updated_at) VALUES (
 
-                :channel_id, 
-                :channel_title, 
-                :channel_status, 
-                :subscribers, 
-                :last_parsed_at, 
+                :channel_id,
+                :channel_title,
+                :channel_status,
+                :subscribers,
+                :last_parsed_at,
                 :last_updated_at
                 ) ON CONFLICT DO NOTHING;""")
 
