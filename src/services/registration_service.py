@@ -4,7 +4,7 @@ from typing import Sequence
 
 from aiogram.types import Message
 from loguru import logger
-from sqlalchemy import Row, select
+from sqlalchemy import Row, delete, select
 from sqlalchemy.dialects.postgresql import insert
 
 from database import AsyncSessionLocal, Users
@@ -27,3 +27,10 @@ class UserService:
             query = select(Users.user_id)
             result = await session.execute(query)
             return result.fetchall()
+
+    @staticmethod
+    async def delete_user(user_id: int) -> None:
+        async with AsyncSessionLocal() as session:
+            query = delete(Users).where(Users.user_id == user_id)
+            await session.execute(query)
+            await session.commit()
